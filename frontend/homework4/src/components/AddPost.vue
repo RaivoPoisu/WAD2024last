@@ -1,17 +1,15 @@
 <template>
-    <div class="add-post">
-      <h2>Add Post</h2>
-      <form @submit.prevent="addPost">
-        <div>
-          <label>Body:</label>
-          <input v-model="body" placeholder="Sisesta postituse sisu" />
-        </div>
-        <div>
-          <label>Image URL:</label>
-          <input v-model="image_url" placeholder="Sisesta pildi URL" />
-        </div>
-        <button type="submit">Add</button>
-      </form>
+    <div class="add-post-container">
+      <h1 class="add-post-title">Add Post</h1>
+      <div class="form-container">
+        <label for="body" class="label">Body:</label>
+        <input v-model="body" id="body" class="input-field" placeholder="Enter post body" />
+  
+        <label for="image_url" class="label">Image URL (optional):</label>
+        <input v-model="image_url" id="image_url" class="input-field" placeholder="Enter image URL" />
+  
+        <button @click="submitPost" class="submit-button">Add</button>
+      </div>
     </div>
   </template>
   
@@ -26,16 +24,23 @@
       };
     },
     methods: {
-      async addPost() {
+      async submitPost() {
+        if (!this.body) {
+          alert('Post body cannot be empty!');
+          return;
+        }
         try {
           await axios.post('http://localhost:3000/posts', {
             body: this.body,
-            image_url: this.image_url,
+            image_url: this.image_url || null, // Kui pilti pole, saadab nulli
+            date: new Date().toISOString(),
           });
-          alert('Postitus edukalt lisatud!');
-          this.$router.push('/');
+          alert('Post added successfully!');
+          this.body = ''; // Tühjenda väljad pärast lisamist
+          this.image_url = '';
         } catch (error) {
-          console.error('Postituse lisamine ebaõnnestus:', error);
+          console.error('Error adding post:', error);
+          alert('Post addition failed.');
         }
       },
     },
@@ -43,16 +48,68 @@
   </script>
   
   <style scoped>
-  .add-post {
-    text-align: center;
+  /* Peamine konteiner keskele */
+  .add-post-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 40vh;
+    background-color: #f8f8e8;
+    border-radius: 10px;
+    margin: 20px auto;
+    max-width: 500px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   }
-  input {
-    margin: 10px;
-    padding: 5px;
+  
+  /* Pealkiri */
+  .add-post-title {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
   }
-  button {
-    margin: 10px;
-    padding: 5px 10px;
+  
+  /* Vormide konteiner */
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+  }
+  
+  /* Siltide (Body, Image URL) stiil */
+  .label {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 5px;
+    text-align: left;
+    width: 100%;
+  }
+  
+  /* Sisendväljad */
+  .input-field {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  
+  /* Nupp */
+  .submit-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .submit-button:hover {
+    background-color: #0056b3;
   }
   </style>
   
