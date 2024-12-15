@@ -25,10 +25,9 @@ const router = createRouter({
 // Protect router from unauthuarized users
 router.beforeEach((to, from, next) => {
   const loggedIn = localStorage.getItem('token');
+
   if (to.meta.requiresAuth && !loggedIn) {
     next('/login');
-  } else if (to.path === '/' && !loggedIn) {
-    next('/login'); // Kui marsruut on "/" ja pole sisselogitud, suunab login lehele 
   } else {
     next();
   }
