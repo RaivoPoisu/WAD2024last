@@ -1,6 +1,6 @@
 <template>
     <div>
-      <div v-for="post in posts" :key="post.id" class="post-container">
+      <div v-for="post in posts" :key="post.id" class="post-container" @click="goToPost(post.id)">
         <!-- Kuupäev -->
         <div class="post-header">
           <span class="post-date">{{ formatDate(post.date) }}</span>
@@ -12,7 +12,12 @@
         </div>
   
         <!-- Pilt (kuvatakse ainult, kui post.image_url on olemas) -->
-        <img v-if="post.image_url" :src="post.image_url" alt="Posti pilt" class="post-image" @click="goToPost(post.id)" />
+        <img 
+          v-if="post.image_url" 
+          :src="post.image_url" 
+          alt="Posti pilt" 
+          class="post-image" 
+        />
       </div>
   
       <!-- Nupud -->
@@ -20,13 +25,13 @@
         <button @click="navigateToAddPost" class="add-button">Add Post</button>
         <button @click="deleteAllPosts" class="delete-button">Delete All</button>
       </div>
-      <br>
+      <br />
     </div>
   </template>
   
   <script>
   import axios from 'axios';
-
+  
   export default {
     data() {
       return {
@@ -37,6 +42,7 @@
       this.fetchPosts();
     },
     methods: {
+      // Toob postitused serverist
       async fetchPosts() {
         try {
           const response = await axios.get('http://localhost:3000/posts');
@@ -45,6 +51,7 @@
           console.error('Postituste toomine ebaõnnestus:', error);
         }
       },
+      // Vormindab kuupäeva vastavalt Eesti formaadile
       formatDate(dateString) {
         const date = new Date(dateString);
         return date.toLocaleString('et-EE', {
@@ -55,20 +62,24 @@
           minute: '2-digit',
         });
       },
+      // Suunab Post.vue lehele
       goToPost(id) {
         this.$router.push(`/post/${id}`);
       },
+      // Suunab Add Post lehele
       navigateToAddPost() {
         this.$router.push('/add-post');
       },
+      // Kustutab kõik postitused
       async deleteAllPosts() {
         if (confirm('Kas oled kindel, et soovid kõik postitused kustutada?')) {
           try {
-            await axios.delete('http://localhost:3000/posts');
-            this.posts = [];
+            await axios.delete('http://localhost:3000/posts'); // DELETE päring
+            this.posts = []; // Tühjendab postitused
             alert('Kõik postitused kustutatud!');
           } catch (error) {
             console.error('Postituste kustutamine ebaõnnestus:', error);
+            alert('Postituste kustutamine ebaõnnestus');
           }
         }
       },
@@ -82,6 +93,16 @@
     width: 50%;
     position: relative;
     text-align: center; /* Keskendab teksti */
+    cursor: pointer; /* Annab klikitava tunde */
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .post-container:hover {
+    transform: scale(1.02); /* Efekt hiirega üle liikumisel */
   }
   
   .post-header {
@@ -104,11 +125,16 @@
     color: #555;
   }
   
+  .post-text {
+    margin: 10px 0;
+    font-size: 1.1rem;
+    color: #333;
+  }
+  
   .post-image {
     width: 100%;
     height: auto;
     margin-top: 10px;
-    cursor: pointer;
   }
   
   .button-container {

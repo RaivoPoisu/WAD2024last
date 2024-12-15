@@ -153,13 +153,53 @@ app.post('/login', async (req, res) => {
 
 app.delete('/posts', async (req, res) => {
     try {
-      await pool.query('DELETE FROM posts');
-      res.status(200).send('Kõik postitused kustutatud');
-    } catch (err) {
-      console.error('Viga postituste kustutamisel:', err);
-      res.status(500).send('Postituste kustutamine ebaõnnestus');
+        await pool.query('DELETE FROM posts'); 
+        res.status(200).send('Kõik postitused kustutatud!');
+      } catch (error) {
+        console.error('Viga postituste kustutamisel:', error.message);
+        res.status(500).send('Postituste kustutamine ebaõnnestus');
     }
   });
+
+// DELETE üksik postitus ID alusel
+app.delete('/posts/:id', async (req, res) => {
+    const { id } = req.params;
+  
+    try {
+      const result = await pool.query('DELETE FROM posts WHERE id = $1', [id]);
+      if (result.rowCount > 0) {
+        res.status(200).send('Postitus kustutatud!');
+      } else {
+        res.status(404).send('Postitust ei leitud!');
+      }
+    } catch (error) {
+      console.error('Postituse kustutamine ebaõnnestus:', error.message);
+      res.status(500).send('Postituse kustutamine ebaõnnestus!');
+    }
+  });
+
+  //to update the post
+  app.put('/posts/:id', async (req, res) => {
+    const { id } = req.params;
+    const { body } = req.body;
+  
+    try {
+      const result = await pool.query(
+        'UPDATE posts SET body = $1 WHERE id = $2 RETURNING *',
+        [body, id]
+      );
+  
+      if (result.rowCount > 0) {
+        res.status(200).json({ message: 'Postituse uuendamine õnnestus!', post: result.rows[0] });
+      } else {
+        res.status(404).json({ error: 'Postitust ei leitud!' });
+      }
+    } catch (error) {
+      console.error('Postituse uuendamine ebaõnnestus:', error.message);
+      res.status(500).json({ error: 'Postituse uuendamine ebaõnnestus!' });
+    }
+  });
+  
 
 // Käivitame serveri
 app.listen(port, () => {
