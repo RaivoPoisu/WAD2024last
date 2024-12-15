@@ -14,7 +14,7 @@ const routes = [
     { path: '/contact', name: 'Contact', component: Contact },
     { path: '/home', name: 'Home', component: Home, meta: { requiresAuth: true } },
     { path: '/post/:id', name: 'Post', component: Post, meta: { requiresAuth: true } },
-    { path: '/add-post', name: 'AddPost', component: AddPost },
+    { path: '/add-post', name: 'AddPost', component: AddPost, meta: { requiresAuth: true } },
   ];
 
 const router = createRouter({

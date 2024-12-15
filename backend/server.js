@@ -74,9 +74,25 @@ app.get('/posts', async (req, res) => {
     const result = await pool.query('SELECT * FROM posts ORDER BY date DESC');
     res.json(result.rows);
   } catch (error) {
+    console.error(err);
     res.status(500).send('Postituste laadimine ebaõnnestus!');
   }
 });
+
+// GET üksik postitus ID järgi
+app.get('/posts/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const result = await pool.query('SELECT * FROM posts WHERE id = $1', [id]);
+      if (result.rows.length > 0) {
+        res.json(result.rows[0]);
+      } else {
+        res.status(404).send('Postitust ei leitud');
+      }
+    } catch (error) {
+      res.status(500).send('Serveri viga');
+    }
+  });
 
 app.post('/signup', async (req, res) => {
   const { email, password } = req.body;
@@ -134,6 +150,16 @@ app.post('/login', async (req, res) => {
     res.status(500).send('Sisselogimine ebaõnnestus!');
   }
 });
+
+app.delete('/posts', async (req, res) => {
+    try {
+      await pool.query('DELETE FROM posts');
+      res.status(200).send('Kõik postitused kustutatud');
+    } catch (err) {
+      console.error('Viga postituste kustutamisel:', err);
+      res.status(500).send('Postituste kustutamine ebaõnnestus');
+    }
+  });
 
 // Käivitame serveri
 app.listen(port, () => {
