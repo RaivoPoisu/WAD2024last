@@ -6,6 +6,7 @@ import Contact from '../components/Contact.vue';
 import Post from '../components/Post.vue';
 import AddPost from '../components/AddPost.vue';
 
+
 const routes = [
     { path: '/', redirect: '/login' }, //default redirection to login page
     { path: '/login', name: 'Login', component: Login },
